@@ -16,5 +16,5 @@ add_library(${PROJECT_NAME} combinatorics.cpp combinatorics.h)
 target_include_directories(${PROJECT_NAME} PUBLIC .)
 
 # build hw02 executable
-add_executable(${PROJECT_NAME}_run run.cpp) 
-target_link_libraries(${PROJECT_NAME}_run ${PROJECT_NAME})
+# add_executable(${PROJECT_NAME}_run run.cpp) 
+# target_link_libraries(${PROJECT_NAME}_run ${PROJECT_NAME})
