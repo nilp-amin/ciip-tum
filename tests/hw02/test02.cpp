@@ -13,7 +13,7 @@
 #include "hw02.h"
 
 // require at least c++20
-// static_assert(__cplusplus >= 202002L);
+static_assert(__cplusplus >= 202002L);
 
 TEST_CASE("factorials") {
     CHECK_EQ(factorial(0), 1);
