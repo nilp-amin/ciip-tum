@@ -18,4 +18,4 @@ add_library(${PROJECT_NAME} combinatorics.cpp combinatorics.h)
 
 target_include_directories(${PROJECT_NAME} PUBLIC .)
 
-target_link_libraries(${PROJECT_NAME} combinatorics)
+# target_link_libraries(${PROJECT_NAME} combinatorics)
