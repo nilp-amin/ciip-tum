@@ -39,6 +39,10 @@ vm_state create_vm(bool debug) {
     });
 
     register_instruction(state, "EXIT", [](vm_state& vmstate, const item_t) {
+        if (vmstate.stack.size() == 0)
+        {
+            throw vm_stackfail{std::string{"The stack size is 0 on exit."}};
+        }
         return false;
     });
 
@@ -76,7 +80,7 @@ vm_state create_vm(bool debug) {
         return true;
     });
 
-    register_instruction(state, "EQ", [](vm_state& vmstate, const item_t) {
+    register_instruction(state, "NEQ", [](vm_state& vmstate, const item_t) {
         item_t tos = vmstate.pop_top();
         item_t tos1 = vmstate.pop_top();
 
@@ -85,6 +89,10 @@ vm_state create_vm(bool debug) {
     });
 
     register_instruction(state, "DUP", [](vm_state& vmstate, const item_t) {
+        if (vmstate.stack.size() == 0)
+        {
+            throw vm_stackfail{std::string{"The stack size is 0."}};
+        }
         vmstate.stack.push(vmstate.stack.top());
         return true;
     });
@@ -104,12 +112,20 @@ vm_state create_vm(bool debug) {
     });
 
     register_instruction(state, "WRITE", [](vm_state& vmstate, const item_t) {
-        vmstate.output_stream << std::to_string(vmstate.stack.top());
+        if (vmstate.stack.size() == 0)
+        {
+            throw vm_stackfail{std::string{"The stack size is 0."}};
+        }
+        vmstate.output_stream << vmstate.stack.top();
         return true;
     });
 
     register_instruction(state, "WRITE_CHAR", [](vm_state& vmstate, const item_t) {
-        vmstate.output_stream << vmstate.stack.top();
+        if (vmstate.stack.size() == 0)
+        {
+            throw vm_stackfail{std::string{"The stack size is 0."}};
+        }
+        vmstate.output_stream << static_cast<char>(vmstate.stack.top());
         return true;
     });
 
@@ -121,8 +137,12 @@ vm_state create_vm(bool debug) {
 void register_instruction(vm_state& state, std::string_view name,
                           const op_action_t& action) {
     size_t op_id = state.next_op_id;
+    std::string inst_name{name.data(), name.size()};
 
-    // TODO make instruction available to vm
+    state.instruction_ids[inst_name] = op_id;
+    state.instruction_names[op_id] = inst_name;
+    state.instruction_actions[op_id] = action;
+    state.next_op_id++;
 }
 
 
@@ -192,9 +212,18 @@ std::tuple<item_t, std::string> run(vm_state& vm, const code_t& code) {
         vm.pc += 1;
 
         // TODO execute instruction and stop if the action returns false.
+        if (!vm.instruction_actions[op_id](vm, arg))
+        {
+            break;
+        }
+
+        if (vm.pc >= code.size())
+        {
+            throw vm_segfault{std::string{"Invalid instruction address."}};
+        }
     }
 
-    return {0, ""}; // TODO: return tuple(exit value, output text)
+    return {vm.stack.top(), vm.output_stream.str()};
 }
 
 
