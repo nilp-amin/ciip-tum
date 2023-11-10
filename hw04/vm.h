@@ -87,7 +87,16 @@ struct vm_state {
     bool debug = false;
 
     // if you need to store more vm state, add it here!
+    std::ostringstream output_stream;
+
+    /**
+     * @brief  return the top item on the stack and pop it as well.
+     * 
+     * @return the item on the top of the stack 
+     */
+    item_t pop_top();
 };
+
 
 
 ///////////////////////////////////////////////////////////////////////////////

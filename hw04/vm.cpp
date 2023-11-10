@@ -8,6 +8,18 @@
 
 namespace vm {
 
+item_t vm_state::pop_top()
+{
+    if (this->stack.size() == 0)
+    {
+        throw vm_stackfail{std::string{"The stack in empty."}};
+    }
+    item_t top = this->stack.top();
+    this->stack.pop();
+
+    return top;
+}
+
 
 vm_state create_vm(bool debug) {
     vm_state state;
@@ -21,8 +33,86 @@ vm_state create_vm(bool debug) {
         return true;
     });
 
+    register_instruction(state, "LOAD_CONST", [](vm_state& vmstate, const item_t number) {
+        vmstate.stack.push(number);
+        return true;
+    });
 
-    // TODO create instructions
+    register_instruction(state, "EXIT", [](vm_state& vmstate, const item_t) {
+        return false;
+    });
+
+    register_instruction(state, "POP", [](vm_state& vmstate, const item_t) {
+        vmstate.pop_top();
+        return true;
+    });
+
+    register_instruction(state, "ADD", [](vm_state& vmstate, const item_t) {
+        item_t tos = vmstate.pop_top();
+        item_t tos1 = vmstate.pop_top();
+
+        vmstate.stack.push(tos1 + tos);
+        return true;
+    });
+
+    register_instruction(state, "DIV", [](vm_state& vmstate, const item_t) {
+        item_t tos = vmstate.pop_top();
+        item_t tos1 = vmstate.pop_top();
+
+        if (tos == 0)
+        {
+            throw div_by_zero{std::string{"divide by 0 error."}};
+        }
+
+        vmstate.stack.push(tos1 / tos);
+        return true;
+    });
+
+    register_instruction(state, "EQ", [](vm_state& vmstate, const item_t) {
+        item_t tos = vmstate.pop_top();
+        item_t tos1 = vmstate.pop_top();
+
+        vmstate.stack.push(static_cast<item_t>(tos1 == tos));
+        return true;
+    });
+
+    register_instruction(state, "EQ", [](vm_state& vmstate, const item_t) {
+        item_t tos = vmstate.pop_top();
+        item_t tos1 = vmstate.pop_top();
+
+        vmstate.stack.push(static_cast<item_t>(tos1 != tos));
+        return true;
+    });
+
+    register_instruction(state, "DUP", [](vm_state& vmstate, const item_t) {
+        vmstate.stack.push(vmstate.stack.top());
+        return true;
+    });
+
+    register_instruction(state, "JMP", [](vm_state& vmstate, const item_t addr) {
+        vmstate.pc = addr;
+        return true;
+    });
+
+    register_instruction(state, "JMPZ", [](vm_state& vmstate, const item_t addr) {
+        item_t tos = vmstate.pop_top();
+        if (tos == 0)
+        {
+            vmstate.pc = addr;
+        }
+        return true;
+    });
+
+    register_instruction(state, "WRITE", [](vm_state& vmstate, const item_t) {
+        vmstate.output_stream << std::to_string(vmstate.stack.top());
+        return true;
+    });
+
+    register_instruction(state, "WRITE_CHAR", [](vm_state& vmstate, const item_t) {
+        vmstate.output_stream << vmstate.stack.top();
+        return true;
+    });
+
 
     return state;
 }
