@@ -16,14 +16,26 @@ struct Invalid {};
 /// into the invalid state, only the semicolon is allowed.
 struct Valid {};
 
-// TODO: all new states go between here...
+struct SelectStmt {};
+struct AllColumns {};
+struct NamedColumn {};
+struct MoreColumns {};
+struct FromClause {};
+struct TableName {};
 
 } // namespace state
 
 /// variant of all possible states of our finite machine
-/// TODO: Add all the possible states to the variant
 using State =
-    std::variant<state::Start, state::Invalid, state::Valid>;
+    std::variant<state::Start,
+                 state::Invalid,
+                 state::Valid,
+                 state::SelectStmt,
+                 state::AllColumns,
+                 state::NamedColumn,
+                 state::MoreColumns,
+                 state::FromClause,
+                 state::TableName>;
 
 /// Transition from the `Start` state to the next state depending on the given
 /// token
@@ -43,6 +55,23 @@ State transition(state::Invalid, const Token &token);
 // TODO: all of the transition functions from the newly created states go
 // between here...
 // ... and here
+[[nodiscard]]
+State transition(state::SelectStmt, const Token &token);
+
+[[nodiscard]]
+State transition(state::AllColumns, const Token &token);
+
+[[nodiscard]]
+State transition(state::NamedColumn, const Token &token);
+
+[[nodiscard]]
+State transition(state::MoreColumns, const Token &token);
+
+[[nodiscard]]
+State transition(state::FromClause, const Token &token);
+
+[[nodiscard]]
+State transition(state::TableName, const Token &token);
 
 /// Our finite state machine.
 /// The initial state is `Start` and based on the given tokens it will move to
@@ -52,12 +81,10 @@ class SqlValidator {
 public:
     SqlValidator() = default;
 
-    /// TODO: Implement this member function
     /// Returns `true` iff the variant is in the `Valid` state
     [[nodiscard]]
     bool is_valid() const;
 
-    /// TODO: Implement this member function
     /// Moves from one state to the next given the token.
     void handle(const Token &token);
 
@@ -65,20 +92,6 @@ private:
     State state_ = state::Start{};
 };
 
-/// TODO: Implement this function!
-///
-/// Given a sequence of tokens, this functions returns true, if it is a valid
-/// (simplified) select clause of SQL
-///
-/// - Example of a valid token sequence:
-///   - "SELECT * FROM table;"
-/// - Example of a invalid token sequence:
-///   - "SELECT Col1 Col2 FROM table;" (Missing comma)
-///   - "SELECT Col1, * FROM table;" (Either select specific columns or all)
-///   - "SELECT Col1 FROM table" (Missing Semicolon)
-///   - "FROM * SELECT Col1;" (Select should be first)
-///
-/// These sequences must be given in a `std::vector<Token>`
 [[nodiscard]]
 bool is_valid_sql_query(const std::vector<Token> &tokens);
 } // namespace sql

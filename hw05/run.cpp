@@ -27,7 +27,7 @@ std::vector<sql::Token> invalid_token_stream() {
 
 int main() {
     // Change to get an invalid token stream
-    bool get_valid_tokens = true;
+    bool get_valid_tokens = false;
 
     std::vector<sql::Token> tokens;
     if (get_valid_tokens) {

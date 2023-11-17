@@ -15,7 +15,10 @@ struct Identifier {
     std::string name;
 };
 
-// TODO: all the token types go here
+struct From {};
+struct Comma {};
+struct Asterisks {};
+struct Semicolon {};
 
 } // namespace token
 
@@ -23,9 +26,13 @@ struct Identifier {
 /// token types. And at runtime you can query which type is currently stored in the token.
 class Token {
 public:
-    /// TODO: Add all types of token to the variant
     using token_type =
-        std::variant<token::Select, token::Identifier>;
+        std::variant<token::Select, 
+                     token::Identifier,
+                     token::From,
+                     token::Comma,
+                     token::Asterisks,
+                     token::Semicolon>;
 
     // Disallow default construction, this doesn't really make sense, what should be a default
     // token? Maybe Unknown, but we don't have that so just disallow it
