@@ -12,34 +12,13 @@ bool SqlValidator::is_valid() const {
 }
 
 void SqlValidator::handle(const Token &token) {
-    if (std::holds_alternative<state::Start>(state_))
-    {
-        state_ = transition(state::Start{}, token);
-    } else if (std::holds_alternative<state::Valid>(state_))
-    {
-        state_ = transition(state::Valid{}, token);
-    } else if (std::holds_alternative<state::Invalid>(state_))
-    {
-        state_ = transition(state::Invalid{}, token);
-    } else if (std::holds_alternative<state::SelectStmt>(state_))
-    {
-        state_ = transition(state::SelectStmt{}, token);
-    } else if (std::holds_alternative<state::AllColumns>(state_))
-    {
-        state_ = transition(state::AllColumns{}, token);
-    } else if (std::holds_alternative<state::NamedColumn>(state_))
-    {
-        state_ = transition(state::NamedColumn{}, token);
-    } else if (std::holds_alternative<state::MoreColumns>(state_))
-    {
-        state_ = transition(state::MoreColumns{}, token);
-    } else if (std::holds_alternative<state::FromClause>(state_))
-    {
-        state_ = transition(state::FromClause{}, token);
-    } else if (std::holds_alternative<state::TableName>(state_))
-    {
-        state_ = transition(state::TableName{}, token);
-    }
+
+    state_ = std::visit(
+        [&](auto cur) -> State {
+            return transition(cur, token);
+        },
+        state_
+    );
 }
 
 struct TransitionFromStartVisitor {
@@ -48,90 +27,55 @@ struct TransitionFromStartVisitor {
     State operator()(token::Select) const { return state::SelectStmt{}; }
 
     // All the other tokens, put it in the invalid state
-    State operator()(token::From) const { return state::Invalid{}; }
-    State operator()(token::Comma) const { return state::Invalid{}; }
-    State operator()(token::Asterisks) const { return state::Invalid{}; }
-    State operator()(token::Semicolon) const { return state::Invalid{}; }
-    State operator()(token::Identifier) const { return state::Invalid{}; }
+    State operator()(auto) const {return state::Invalid{}; }
 };
 
 struct TransitionFromSelectStmtVisitor {
     State operator()(token::Asterisks) const { return state::AllColumns{}; }
     State operator()(token::Identifier) const { return state::NamedColumn{}; }
 
-    State operator()(token::From) const { return state::Invalid{}; }
-    State operator()(token::Comma) const { return state::Invalid{}; }
-    State operator()(token::Select) const { return state::Invalid{}; }
-    State operator()(token::Semicolon) const { return state::Invalid{}; }
+    State operator()(auto) const {return state::Invalid{}; }
 };
 
 struct TransitionFromAllColumns {
     State operator()(token::From) const { return state::FromClause{}; }
 
-    State operator()(token::Comma) const { return state::Invalid{}; }
-    State operator()(token::Asterisks) const { return state::Invalid{}; }
-    State operator()(token::Identifier) const { return state::Invalid{}; }
-    State operator()(token::Select) const { return state::Invalid{}; }
-    State operator()(token::Semicolon) const { return state::Invalid{}; }
+    State operator()(auto) const {return state::Invalid{}; }
 };
 
 struct TransitionFromNamedColumnVisitor {
     State operator()(token::Comma) const { return state::MoreColumns{}; }
     State operator()(token::From) const { return state::FromClause{}; }
 
-    State operator()(token::Asterisks) const { return state::Invalid{}; }
-    State operator()(token::Identifier) const { return state::Invalid{}; }
-    State operator()(token::Select) const { return state::Invalid{}; }
-    State operator()(token::Semicolon) const { return state::Invalid{}; }
+    State operator()(auto) const {return state::Invalid{}; }
 };
 
 struct TransitionFromMoreColumnsVisitor {
     State operator()(token::Identifier) const { return state::NamedColumn{}; }
 
-    State operator()(token::Comma) const { return state::Invalid{}; }
-    State operator()(token::Asterisks) const { return state::Invalid{}; }
-    State operator()(token::From) const { return state::Invalid{}; }
-    State operator()(token::Select) const { return state::Invalid{}; }
-    State operator()(token::Semicolon) const { return state::Invalid{}; }
+    State operator()(auto) const {return state::Invalid{}; }
 };
 
 struct TransitionFromFromClauseVisitor {
     State operator()(token::Identifier) const { return state::TableName{}; }
 
-    State operator()(token::Comma) const { return state::Invalid{}; }
-    State operator()(token::Asterisks) const { return state::Invalid{}; }
-    State operator()(token::From) const { return state::Invalid{}; }
-    State operator()(token::Select) const { return state::Invalid{}; }
-    State operator()(token::Semicolon) const { return state::Invalid{}; }
+    State operator()(auto) const {return state::Invalid{}; }
 };
 
 struct TransitionFromTableNameVisitor {
     State operator()(token::Semicolon) const { return state::Valid{}; }
 
-    State operator()(token::Comma) const { return state::Invalid{}; }
-    State operator()(token::Asterisks) const { return state::Invalid{}; }
-    State operator()(token::From) const { return state::Invalid{}; }
-    State operator()(token::Select) const { return state::Invalid{}; }
-    State operator()(token::Identifier) const { return state::Invalid{}; }
+    State operator()(auto) const {return state::Invalid{}; }
 };
 
 struct TransitionFromValidVisitor {
     State operator()(token::Semicolon) const { return state::Valid{}; }
 
-    State operator()(token::Comma) const { return state::Invalid{}; }
-    State operator()(token::Asterisks) const { return state::Invalid{}; }
-    State operator()(token::From) const { return state::Invalid{}; }
-    State operator()(token::Select) const { return state::Invalid{}; }
-    State operator()(token::Identifier) const { return state::Invalid{}; }
+    State operator()(auto) const {return state::Invalid{}; }
 };
 
 struct TransitionFromInvalidVisitor {
-    State operator()(token::Semicolon) const { return state::Invalid{}; }
-    State operator()(token::Comma) const { return state::Invalid{}; }
-    State operator()(token::Asterisks) const { return state::Invalid{}; }
-    State operator()(token::From) const { return state::Invalid{}; }
-    State operator()(token::Select) const { return state::Invalid{}; }
-    State operator()(token::Identifier) const { return state::Invalid{}; }
+    State operator()(auto) const {return state::Invalid{}; }
 };
 
 State transition(state::Start, const Token &token) {
