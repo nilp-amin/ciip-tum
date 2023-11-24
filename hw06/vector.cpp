@@ -243,6 +243,10 @@ float prod(const Vector& x)
 
 float dot(const Vector& x, const Vector& y)
 {
+    if (x.size() != y.size())
+    {
+        throw std::invalid_argument{"Mismatching vector lengths."};
+    }
     return std::inner_product(x.begin(), x.end(), y.begin(), 0.0f);
 }
 
@@ -254,12 +258,12 @@ float norm(const Vector& x)
             norm += element*element;
         }
     );
-    return norm;
+    return sqrt(norm);
 }
 
 void normalize(Vector& x)
 {
-    x /= static_cast<float>(sqrt((norm(x))));
+    x /= static_cast<float>((norm(x)));
 }
 
 Vector normalized(const Vector& x)
