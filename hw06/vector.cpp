@@ -388,7 +388,7 @@ Vector operator+(float val, const Vector& x)
 
 Vector operator-(float val, const Vector& x)
 {
-    return operator-(-x, val);
+    return operator-(-x, -val);
 }
 
 Vector operator*(float val, const Vector& x)
