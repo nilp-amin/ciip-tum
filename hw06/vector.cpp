@@ -94,7 +94,7 @@ const float& Vector::operator[](int idx) const
 
 float& Vector::coeff(int idx)
 {
-    if (idx >= data_.size() || idx < 0)
+    if (static_cast<std::size_t>(idx) >= data_.size() || idx < 0)
     {
         throw std::out_of_range{"idx out of range"};
     }
@@ -104,7 +104,7 @@ float& Vector::coeff(int idx)
 
 const float& Vector::coeff(int idx) const
 {
-    if (idx >= data_.size() || idx < 0)
+    if (static_cast<std::size_t>(idx) >= data_.size() || idx < 0)
     {
         throw std::out_of_range{"idx out of range"};
     }
@@ -229,12 +229,12 @@ std::size_t non_zeros(const Vector& x)
 
 float sum(const Vector& x)
 {
-    return std::accumulate(x.begin(), x.end(), 0.0);
+    return std::accumulate(x.begin(), x.end(), 0.0f);
 }
 
 float prod(const Vector& x)
 {
-    return std::accumulate(x.begin(), x.end(), 1.0, 
+    return std::accumulate(x.begin(), x.end(), 1.0f, 
         [](auto a, auto b) {
             return a * b;
         }
@@ -243,12 +243,12 @@ float prod(const Vector& x)
 
 float dot(const Vector& x, const Vector& y)
 {
-    return std::inner_product(x.begin(), x.end(), y.begin(), 0.0);
+    return std::inner_product(x.begin(), x.end(), y.begin(), 0.0f);
 }
 
 float norm(const Vector& x)
 {
-    float norm{0};
+    float norm{0.0f};
     std::for_each(x.begin(), x.end(), 
         [&norm](auto element) {
             norm += element*element;
@@ -259,7 +259,7 @@ float norm(const Vector& x)
 
 void normalize(Vector& x)
 {
-    x /= sqrt(norm(x));
+    x /= static_cast<float>(sqrt((norm(x))));
 }
 
 Vector normalized(const Vector& x)
