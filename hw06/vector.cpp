@@ -293,6 +293,13 @@ Vector ceil(const Vector& x)
     return result;
 }
 
+Vector operator+(const Vector& x)
+{
+    Vector result(x.size());
+    result.assign(x);
+    return result;
+}
+
 Vector operator-(const Vector& x)
 {
     Vector result(x.size());
