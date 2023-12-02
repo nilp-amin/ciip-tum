@@ -1,5 +1,7 @@
 #pragma once
 
+#include "connection.h"
+#include "socket.h"
 
 namespace net {
 
@@ -11,6 +13,13 @@ namespace net {
  * - Server must have a function accept, which listens on the given port and returns a new Connection
  */
 class Server {
+public:
+    Server(uint16_t port);
+
+    Connection accept() const;
+
+private:
+    Socket socket;
 };
 
 } // namespace net

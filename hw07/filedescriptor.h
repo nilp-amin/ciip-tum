@@ -1,6 +1,9 @@
 #pragma once
 
 #include <optional>
+#include <utility>
+
+#include <unistd.h>
 
 namespace net {
 
@@ -33,6 +36,16 @@ public:
 
     // TODO: Implement both copy and move constructors and assignment operators for the ownership model
     //       described in the class description.
+
+    // delete the copy constructor
+    FileDescriptor(const FileDescriptor&) = delete;
+    // delete the copy assignment operator
+    FileDescriptor& operator=(const FileDescriptor& other) = delete;
+
+    // move constructor
+    FileDescriptor(FileDescriptor&& other) noexcept;
+    // move assignment operator
+    FileDescriptor& operator=(FileDescriptor&& other) noexcept;
 
     /// Return the underlying file descriptor, if not present return -1 (this is quite standard for
     /// linux systems)
