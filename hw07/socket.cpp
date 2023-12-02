@@ -59,7 +59,11 @@ Connection Socket::connect(std::string destination, uint16_t port)
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = inet_addr(destination.c_str());
 
-    ::connect(fd_.unwrap(), reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
+    auto result = ::connect(fd_.unwrap(), reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
+    if (result == -1)
+    {
+        throw std::runtime_error{"Got error on connect."};
+    }
 
     return Connection{std::move(fd_)};
 }
