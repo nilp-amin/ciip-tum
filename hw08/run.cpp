@@ -150,6 +150,7 @@ int main() {
   std::shared_ptr<Filesystem> fs = std::make_shared<Filesystem>();
   auto img = std::make_shared<Image>(FileContent{"image data"});
   std::cout << "image type: " << img->get_type() << std::endl;
+  std::cout << "image data: " << img->get_content().get().get() << std::endl;
 
   auto vid = std::make_shared<Video>();
   vid->update("lol"s, {1, 2}, 4.0);
@@ -158,6 +159,8 @@ int main() {
   fs->register_file("rolf.img", img);
   fs->register_file("lol.vid", vid);
   std::cout << fs->file_overview() << std::endl;
+
+  // std::cout << fs->get_file("lol.vid")->get_raw_size() << std::endl;
 
   // test your implementation interactively here
   // interactive_test(fs);

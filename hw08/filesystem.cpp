@@ -30,6 +30,7 @@ bool Filesystem::register_file(const std::string &name,
   file->file_system_ = std::move(thisptr);
 
   // TODO: Now actually store it in the filesystem
+  file.get()->rename(name);
   files_[name] = file;
 
   return true;
@@ -68,7 +69,7 @@ std::shared_ptr<File> Filesystem::get_file(std::string_view name) const {
   // TODO: Check the filesystem for the given file, return it if you found it,
   //       else just return nothing
   auto file = files_.find(std::string{name});
-  if (file->first == std::string(name))
+  if (file != files_.end())
   {
     return file->second;
   }
@@ -100,7 +101,9 @@ std::string Filesystem::file_overview(bool sort_by_size) {
 
   for (auto&& entry : this->files_) {
       // TODO: fix printing name, type and size
-      output << entry.first << std::endl;
+      output << entry.first << " " 
+             << entry.second->get_size() 
+             << std::endl;
   }
   return std::move(output).str();
 }
@@ -111,7 +114,7 @@ Filesystem::files_in_size_range(size_t max, size_t min) const {
   std::vector<std::shared_ptr<File>> result;
   for (const auto& pair : files_)
   {
-    auto raw_size = pair.second->get_raw_size();
+    auto raw_size = pair.second->get_size();
     if (raw_size <= max && raw_size >= min)
     {
       result.push_back(pair.second);

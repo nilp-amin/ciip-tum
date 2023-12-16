@@ -80,5 +80,5 @@ private:
      * The file name.
      * Is empty as long as the file is not registered in a filesystem.
      */
-    std::string name;
+    std::string name_;
 };
