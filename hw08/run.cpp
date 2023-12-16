@@ -147,7 +147,7 @@ int main() {
   FileContent c{"stuff"};
   std::cout << "file content: " << *c.get() << std::endl;
 
-  Filesystem fs;
+  std::shared_ptr<Filesystem> fs = std::make_shared<Filesystem>();
   auto img = std::make_shared<Image>(FileContent{"image data"});
   std::cout << "image type: " << img->get_type() << std::endl;
 
@@ -155,9 +155,9 @@ int main() {
   vid->update("lol"s, {1, 2}, 4.0);
   std::cout << "video type: " << vid->get_type() << std::endl;
 
-  fs.register_file("rolf.img", img);
-  fs.register_file("lol.vid", vid);
-  std::cout << fs.file_overview() << std::endl;
+  fs->register_file("rolf.img", img);
+  fs->register_file("lol.vid", vid);
+  std::cout << fs->file_overview() << std::endl;
 
   // test your implementation interactively here
   // interactive_test(fs);

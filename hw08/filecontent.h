@@ -19,6 +19,16 @@ public:
     FileContent(std::string&& content);
     FileContent(const char* content);
 
+    // copy constructor
+    FileContent(const FileContent& other);
+    // copy assignment
+    FileContent& operator=(const FileContent& other);
+    // move constructor
+    FileContent(FileContent&& other) noexcept;
+    // move assignment
+    FileContent& operator=(FileContent&& other) noexcept;
+
+
     /** what's the actual storage size of the file content? */
     size_t get_size() const;
 
@@ -30,4 +40,5 @@ public:
 
 protected:
     // TODO store shareable file content
+    std::string data_;
 };
