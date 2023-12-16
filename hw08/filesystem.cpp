@@ -30,7 +30,7 @@ bool Filesystem::register_file(const std::string &name,
   file->file_system_ = std::move(thisptr);
 
   // TODO: Now actually store it in the filesystem
-  file.get()->rename(name);
+  file.get()->name_ = name;
   files_[name] = file;
 
   return true;
@@ -56,7 +56,11 @@ bool Filesystem::rename_file(std::string_view source, std::string_view dest) {
   //       the source file, then update the filesystem
   auto file = files_.find(std::string{source});
   auto already_exists = files_.find(std::string{dest});
-  if (file == files_.end() || already_exists != files_.end() || source.empty() || dest.empty())
+  if (file == files_.end())
+  {
+    return false;
+  }
+  if (already_exists != files_.end() || source.empty() || dest.empty())
   {
     return false; 
   }

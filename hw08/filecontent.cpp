@@ -1,9 +1,9 @@
 #include "filecontent.h"
 
 // TODO implement constructors
-FileContent::FileContent(const std::string& content) : data_{content} {}
-FileContent::FileContent(std::string&& content) : data_{std::move(content)} {}
-FileContent::FileContent(const char* content) : data_{content} {}
+FileContent::FileContent(const std::string& content) : data_{std::make_shared<std::string>(content)} {}
+FileContent::FileContent(std::string&& content) : data_{std::make_shared<std::string>(std::move(content))} {}
+FileContent::FileContent(const char* content) : data_{std::make_shared<std::string>(content)} {}
 
 FileContent::FileContent(const FileContent& other) : data_{other.data_} {}
 FileContent& FileContent::operator=(const FileContent& other)
@@ -13,14 +13,14 @@ FileContent& FileContent::operator=(const FileContent& other)
 }
 FileContent::FileContent(FileContent&& other) noexcept : data_{std::move(other.data_)}
 {
-    other.data_ = "";
+    other.data_ = nullptr;
 }
 FileContent& FileContent::operator=(FileContent&& other) noexcept
 {
     if (this != &other)
     {
         data_ = std::move(other.data_);
-        other.data_ = "";
+        other.data_ = nullptr;
     }
 
     return *this;
@@ -30,14 +30,10 @@ FileContent& FileContent::operator=(FileContent&& other) noexcept
 // TODO implement member functions
 size_t FileContent::get_size() const
 {
-    return data_.size();
+    return data_->size();
 }
 
 std::shared_ptr<const std::string> FileContent::get() const
 {
-    if (data_.empty())
-    {
-        return nullptr;
-    }
-    return std::make_shared<const std::string>(data_);
+    return data_;
 }

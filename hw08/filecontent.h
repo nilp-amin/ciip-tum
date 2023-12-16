@@ -41,5 +41,5 @@ public:
 
 protected:
     // TODO store shareable file content
-    std::string data_;
+    std::shared_ptr<std::string> data_;
 };

@@ -8,8 +8,12 @@ bool File::rename(std::string_view new_name) {
   // TODO: Check that a filesystem actually exists, then rename it in the filesystem
   if (!file_system_.expired() && name_ != new_name)
   {
-    name_ = new_name;
-    return true;
+    auto temp = name_;
+    if (file_system_.lock()->rename_file(temp, new_name))
+    {
+      name_ = new_name;
+      return true;
+    }
   }
   return false;
 }
