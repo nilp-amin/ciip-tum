@@ -25,31 +25,65 @@ public:
      *       of `std::vector` (hint, pointers are iterators too), check reverse
      */
     using value_type = T;
+    using size_type = std::uint64_t;
+    using difference_type = std::int64_t;
+    using reference = value_type&;
+    using const_reference = const value_type&;
+    using pointer = std::shared_ptr<value_type>;
+    using const_pointer = std::shared_ptr<const value_type>;
+    using iterator = value_type*; 
+    using const_iterator = const value_type*;
+    using reverse_iterator = std::reverse_iterator<iterator>;
+    using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
     Vector() = default;
 
     /**
      * Creates a vector of size n with values default_val.
      */
-    Vector(size_type n, const_reference default_val) {
+    Vector(size_type n, const_reference default_val) 
+    :  _size{n}, _capacity{n}, _data{std::make_unique<value_type[]>(n)}{
+        std::fill(_data.get(), _data.get() + n, default_val);
     }
 
     /**
      * Creates a vector containing the elements in l.
      */
-    Vector(std::initializer_list<value_type> l) {
+    Vector(std::initializer_list<value_type> l) 
+    : _size{l.size()}, _capacity{l.size()}, _data{std::make_unique<value_type[]>(_size)} {
+        std::copy(l.begin(), l.end(), _data.get());
     }
 
-    Vector(const Vector& copy) : _size(copy._size), _capacity(copy._capacity) {
+    Vector(const Vector& copy) 
+    : _size(copy._size), _capacity(copy._capacity), _data{std::make_unique<value_type[]>(_size)} {
+        std::copy(copy._data.get(), copy._data.get() + _size, _data.get());
     }
 
-    Vector(Vector&& move) : _size(move._size), _capacity(move._capacity) {
+    Vector(Vector&& move) 
+    : _size(move._size), _capacity(move._capacity), _data{std::make_unique<value_type[]>(move._size)} {
+        std::unique_ptr<value_type[]> new_array = std::make_unique<value_type[]>(move._size);
+        std::move(move._data.get(), move._data.get() + move._size, new_array.get());
+        _size = move._size; 
+        _capacity = move._capacity;
+        _data = std::move(new_array);
+
+        move._size = 0;
+        move._capacity = 0;
     }
 
     /**
      * Replaces the contents of the vector.
      */
     Vector& operator=(const Vector& copy) {
+        // std::unique_ptr<value_type[]> copy_array{copy._size};
+        std::unique_ptr<value_type[]> copy_array  = std::make_unique<value_type[]>(copy._size);
+        std::copy(copy._data.get(), copy._data.get() + copy._size, copy_array.get());
+        _size = copy._size;
+        _capacity = copy._capacity;
+
+        _data = std::move(copy_array);
+
+        return *this;
     }
 
 
@@ -57,6 +91,19 @@ public:
      * Replaces the contents of the vector.
      */
     Vector& operator=(Vector&& move) noexcept {
+        if (this != &move)
+        {
+            std::unique_ptr<value_type[]> new_array = std::make_unique<value_type[]>(move._size);
+            std::move(move._data.get(), move._data.get() + move._size, new_array.get());
+            _size = move._size; 
+            _capacity = move._capacity;
+            _data = std::move(new_array);
+
+            move._size = 0;
+            move._capacity = 0;
+        }
+
+        return *this;
     }
 
     size_type size() const noexcept { return _size; }
@@ -67,18 +114,26 @@ public:
      * Appends the given element value to the end of the vector.
      */
     void push_back(const_reference value) {
+        resize(calculate_capacity(_size + 1));
+        _data[_size] = value;
+        _size++;
     }
 
     /**
      * Appends the given element value to the end of the vector.
      */
     void push_back(T&& value) {
+        resize(calculate_capacity(_size + 1));
+        _data[_size] = value;
+        _size++; 
     }
 
     /**
      * Removes the last element of the vector.
      */
     void pop_back() {
+        _data[_size - 1].~value_type();
+        _size--;
     }
 
     /**
@@ -86,6 +141,11 @@ public:
      * If pos is not within the range of the vector, an exception of type std::out_of_range is thrown.
      */
     reference at(const size_type pos) const {
+        if (_size == 0 || pos > _size - 1)
+        {
+            throw std::out_of_range{"invalid range given."};
+        }
+        return _data[pos];
     }
 
     /**
@@ -93,6 +153,11 @@ public:
      * If pos is not within the range of the vector, an exception of type std::out_of_range is thrown.
      */
     reference at(const size_type pos) {
+        if (_size == 0 || pos > _size - 1)
+        {
+            throw std::out_of_range{"invalid range given."};
+        }
+        return _data[pos];
     }
 
     /**
@@ -100,6 +165,7 @@ public:
      * No bounds checking is performed.
      */
     const_reference operator[](size_type index) const {
+        return _data[index];
     }
 
     /**
@@ -107,6 +173,7 @@ public:
      * No bounds checking is performed.
      */
     reference operator[](const size_type index) {
+        return _data[index];
     }
 
     // TODO: implement: 
@@ -115,6 +182,68 @@ public:
     //           - rbegin, rend (const and non-const)
     //           - crbegin, crend (see e.g. https://en.cppreference.com/w/cpp/iterator/rbegin)
     //       This isn't necessarily very complicated, but a little tiresome, but that's part of C++ (yeah....)
+
+    iterator begin()
+    {
+        return _data.get();
+    }
+
+    iterator end()
+    {
+        return _data.get() + _size;
+    }
+
+    const_iterator begin() const
+    {
+        return _data.get(); 
+    }
+
+    const_iterator end() const
+    {
+        return _data.get() + _size;
+    }
+
+    const_iterator cbegin() const
+    {
+        return _data.get();
+    }
+
+    const_iterator cend() const
+    {
+        return _data.get() + _size;
+    }
+
+    reverse_iterator rbegin()
+    {
+        return reverse_iterator(end());
+    }
+
+    reverse_iterator rend()
+    {
+        return reverse_iterator(begin());
+    }
+
+    const_reverse_iterator rbegin() const
+    {
+        return const_reverse_iterator(end());
+    }
+
+    const_reverse_iterator rend() const
+    {
+
+        return const_reverse_iterator(begin());
+    }
+
+    const_reverse_iterator crbegin() const
+    {
+        return const_reverse_iterator(end());
+    }
+
+    const_reverse_iterator crend() const
+    {
+        return const_reverse_iterator(begin());
+    }
+
 
     /**
      * Stream a Vector to an output stream textually.
@@ -146,6 +275,11 @@ private:
      * If necessary, double `_capacity` using `growth_factor`.
      */
     size_type calculate_capacity(size_type new_size) {
+        if (new_size >= _capacity)
+        {
+            return std::max(growth_factor * _capacity, new_size);
+        }
+        return _capacity;
     }
 
     /**
@@ -154,5 +288,13 @@ private:
      * the vector moves all elements to a new array.
      */
     void resize(size_type new_capacity) {
+        if (_capacity < new_capacity)
+        {
+            _capacity = new_capacity;
+
+            std::unique_ptr<value_type[]> new_array = std::make_unique<value_type[]>(_capacity);
+            std::move(_data.get(), _data.get() + _size, new_array.get());
+            _data = std::move(new_array);
+        }
     }
 };
