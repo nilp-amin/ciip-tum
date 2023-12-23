@@ -4,6 +4,7 @@
 #include <memory>
 #include <ostream>
 #include <stdexcept>
+#include <cstdint>
 
 template <typename T>
 class Vector {
