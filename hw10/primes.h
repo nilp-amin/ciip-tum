@@ -38,7 +38,7 @@ constexpr Head gcd(const Head& head, const Tail&... tail) {
 }
 
 template<typename Head>
-constexpr Head mcm(const Head a)
+constexpr Head mcm(Head a)
 {
     return a;
 }
@@ -47,7 +47,7 @@ template<typename Head, typename... Tail>
 constexpr Head mcm(const Head& head, const Tail&... tail)
 {
     constexpr auto base_case = [](Head a, Head b) -> Head {
-        return abs(a) * abs(b) / gcd(a, b);
+        return a * b / gcd(a, b);
     };
 
     return base_case(head, mcm(tail...));
