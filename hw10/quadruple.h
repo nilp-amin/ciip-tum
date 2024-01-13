@@ -11,9 +11,52 @@
 // `std::array`, again provide the getters.
 template <typename T, typename U, typename V, typename W> struct Quadruple {
 public:
+    Quadruple(T first, U second, V third, W fourth) :
+    first_{first}, second_{second}, third_{third}, fourth_{fourth} {}
+
+    T get_first() { return first_; }
+    U get_second() { return second_; }
+    V get_third() { return third_; }
+    W get_fourth() { return fourth_; }
 
 
 private:
-    T first;
+    T first_;
+    U second_;
+    V third_;
+    W fourth_;
 };
 
+// specilisation if all types are ints
+template <> 
+struct Quadruple<int, int, int, int> {
+public:
+    Quadruple(int first, int second, int third, int fourth) : 
+    data_{{first, second, third, fourth}} {}
+
+    int get_first() { return data_[0]; }
+    int get_second() { return data_[1]; }
+    int get_third() { return data_[2]; }
+    int get_fourth() { return data_[3]; }
+
+public:
+    std::array<int, 4> data_;
+
+};
+
+// specilisation if all types are the same
+template <typename T> 
+struct Quadruple<T, T, T, T> {
+public:
+    Quadruple(T first, T second, T third, T fourth) : 
+    data_{{first, second, third, fourth}} {}
+
+    T get_first() { return data_[0]; }
+    T get_second() { return data_[1]; }
+    T get_third() { return data_[2]; }
+    T get_fourth() { return data_[3]; }
+
+public:
+    std::array<T, 4> data_;
+
+};
