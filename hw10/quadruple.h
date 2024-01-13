@@ -19,7 +19,6 @@ public:
     V get_third() { return third_; }
     W get_fourth() { return fourth_; }
 
-
 private:
     T first_;
     U second_;
@@ -32,15 +31,15 @@ template <>
 struct Quadruple<int, int, int, int> {
 public:
     Quadruple(int first, int second, int third, int fourth) : 
-    data_{{first, second, third, fourth}} {}
+    members{{first, second, third, fourth}} {}
 
-    int get_first() { return data_[0]; }
-    int get_second() { return data_[1]; }
-    int get_third() { return data_[2]; }
-    int get_fourth() { return data_[3]; }
+    int get_first() { return members[0]; }
+    int get_second() { return members[1]; }
+    int get_third() { return members[2]; }
+    int get_fourth() { return members[3]; }
 
 public:
-    std::array<int, 4> data_;
+    std::array<int, 4> members;
 
 };
 
@@ -49,14 +48,14 @@ template <typename T>
 struct Quadruple<T, T, T, T> {
 public:
     Quadruple(T first, T second, T third, T fourth) : 
-    data_{{first, second, third, fourth}} {}
+    members{{first, second, third, fourth}} {}
 
-    T get_first() { return data_[0]; }
-    T get_second() { return data_[1]; }
-    T get_third() { return data_[2]; }
-    T get_fourth() { return data_[3]; }
+    T get_first() { return members[0]; }
+    T get_second() { return members[1]; }
+    T get_third() { return members[2]; }
+    T get_fourth() { return members[3]; }
 
 public:
-    std::array<T, 4> data_;
+    std::array<T, 4> members;
 
 };

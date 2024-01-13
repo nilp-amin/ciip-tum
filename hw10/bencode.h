@@ -4,6 +4,33 @@
 #include <string_view>
 
 namespace bencode {
+
+consteval bool is_digit(char c)
+{
+    return c >= '0' && c <= '9';
+}
+
+// function to convert string to int at compile time
+consteval int compile_stoi(std::string_view str, size_t index=0, int value=0)
+{
+    if (str[index] == 'i')
+    {
+        // skip 'i'  and parse until 'e'
+        return compile_stoi(str, index + 1, 0);
+    }
+    if (str[index] == '-')
+    {
+        // make sure to make this number negative
+        return -1 * compile_stoi(str, index + 1, 0);
+    }
+    if (str[index] == 'e')
+    {
+        // end of int
+        return value;
+    }
+    return compile_stoi(str, index + 1, value * 10 + (str[index] - '0'));
+}
+
 // TODO: Implement int parsing for the bencode fromat
 // Bencode encoded integers have the format `i<number>e`. Your function should return the number.
 // The function returns a `std::optional<std::string_view>` to indicate success or failure.
@@ -21,7 +48,30 @@ namespace bencode {
 // - Handle empty string
 // - Handle if a non-digit number is between 'i' and 'e'
 consteval std::optional<int> parse_int(std::string_view str) {
-    return {};
+    if (str.empty())
+    {
+        return std::nullopt;
+    }
+    if (str.front() != 'i')
+    {
+        return std::nullopt;
+    }
+    if (str.back() != 'e')
+    {
+        return std::nullopt;
+    }
+    if (str.size() == 2)
+    {
+        return std::nullopt;
+    }
+    for (size_t i{1}; i < str.size() - 1; ++i)
+    {
+        if (!is_digit(str[i]) && i != 1)
+        {
+            return std::nullopt;
+        }
+    }
+    return compile_stoi(str);
 }
 
 // TODO: Implement byte string parsing for the bencode fromat
@@ -42,6 +92,41 @@ consteval std::optional<int> parse_int(std::string_view str) {
 // - It is NOT valid for the string to be shorter than the specified length
 // - The string may contain colons
 consteval std::optional<std::string_view> parse_byte_string(std::string_view str) {
-    return {};
+    // check if the value until the first colon is a number
+    bool contains_colon_correct{false};
+    for (size_t i{0}; i < str.size(); ++i)
+    {
+        if (str[i] == ':')
+        {
+            contains_colon_correct = true;
+            break;
+        }
+        if (!is_digit(str[i]))
+        {
+            // found non-digit before colon
+            return std::nullopt;
+        }
+    }
+
+    // did not contain the colon in the correct spot or did not have a colon at all
+    if (contains_colon_correct)
+    {
+
+        // obtain length information 
+        size_t colon_pos = str.find(':');
+        size_t length = 0;
+        for (char digit : str.substr(0, colon_pos)) {
+            length = length * 10 + (digit - '0');
+        }
+
+        if (str.size() - str.find(':') - 1 < length) // counting from 0 hence why we minus an additional 1
+        {
+            return std::nullopt;
+        }
+        // return string according to length
+        return str.substr(colon_pos + 1, length);
+    }
+
+    return std::nullopt;
 }
 } // namespace bencode

@@ -42,6 +42,10 @@ int main() {
               << Power<10, 0, 3>::value << std::endl;
     std::cout << "1^0 mod 3 = "
               << Power<1, 0, 3>::value << std::endl;
+    std::cout << "1^0 mod 1 = "
+              << Power<1, 0, 1>::value << std::endl;
+    std::cout << "5^3 mod 42 = "
+              << Power<5, 3, 42>::value << std::endl;
     std::cout << "5^3 mod 13 = "
               << Power<5, 3, 13>::value << std::endl;
     std::cout << "4^13 mod 497 = "

@@ -53,7 +53,6 @@ constexpr Head mcm(const Head& head, const Tail&... tail)
     return base_case(head, mcm(tail...));
 }
 
-
 template <int Base, int Exponent, int Modulus>
 struct Power {
     static constexpr int value = (Power<Base, Exponent - 1, Modulus>::value * Base) % Modulus;
@@ -62,4 +61,9 @@ struct Power {
 template <int Base, int Modulus>
 struct Power<Base, 0, Modulus> {
     static constexpr int value = 1;
+};
+
+template <>
+struct Power<1, 0, 1> {
+    static constexpr int value = 0;
 };
