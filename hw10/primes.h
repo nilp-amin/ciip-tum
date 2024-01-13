@@ -38,7 +38,7 @@ constexpr Head gcd(const Head& head, const Tail&... tail) {
 }
 
 template<typename Head>
-constexpr Head mcm(Head a)
+constexpr Head mcm(const Head a)
 {
     return a;
 }
