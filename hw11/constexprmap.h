@@ -26,10 +26,7 @@ public:
     using value_type = V;
 
     template<class... Entries>
-    constexpr CexprMap(Entries&&... entries) { 
-        // add key-value pairs to array
-        values = {entries...};
-
+    constexpr CexprMap(Entries&&... entries) : values{entries...} { 
         // check for duplicates
         verify_no_duplicates();
     }
@@ -53,6 +50,10 @@ public:
      */
     constexpr const V &get(const K &key) const {
         auto pair = find(key);
+        if (pair == values.end())
+        {
+            throw std::out_of_range{"key not found in map."};
+        }
         return pair->second;
     }
 
@@ -75,7 +76,7 @@ private:
             {
                 if (iter_i->first == iter_j->first)
                 {
-                    throw std::invalid_argument{"found duplicate"};
+                    throw std::invalid_argument{"found duplicate."};
                 }
             }
         }
