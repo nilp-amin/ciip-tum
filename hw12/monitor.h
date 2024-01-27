@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <string>
 #include <filesystem>
-#include <iostream>
 
 #include "logger.h"
 
