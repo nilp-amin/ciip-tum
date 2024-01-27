@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <filesystem>
+#include <iostream>
 
 #include "logger.h"
 
@@ -28,5 +29,7 @@ public:
 private:
     mutable Logger logger;
     std::chrono::duration<int, std::milli> interval;
-    // TODO: Do you need anything here?
+    std::string target_path_;
+    std::unordered_map<std::filesystem::path, 
+                       std::filesystem::file_time_type> mapping_;
 };

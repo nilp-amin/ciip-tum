@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <string>
+#include <filesystem>
 
 enum class status {
     added,
@@ -25,6 +26,8 @@ public:
      * remove the backup file, Linux and MacOs should handle overwriting just fine)
      */
     Logger(const std::string& filename = "log.txt");
+    
+    ~Logger();
 
     void log(const std::string& path, status what);
 
