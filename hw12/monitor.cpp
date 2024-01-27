@@ -32,7 +32,7 @@ void FileMonitor::start(std::chrono::seconds timeout) {
         // check for additions of files in the directory
         for (auto const& dir_entry : fs::directory_iterator(target_path_))
         {
-            auto find_key_it = mapping_.find(dir_entry);
+            auto find_key_it = mapping_.find(dir_entry.path());
 
             if (find_key_it == mapping_.end())
             {

@@ -30,6 +30,6 @@ private:
     mutable Logger logger;
     std::chrono::duration<int, std::milli> interval;
     std::string target_path_;
-    std::unordered_map<std::filesystem::path, 
+    std::unordered_map<std::string, 
                        std::filesystem::file_time_type> mapping_;
 };
